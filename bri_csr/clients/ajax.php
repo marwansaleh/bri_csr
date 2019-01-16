@@ -288,13 +288,14 @@ function savePrograms($mode)
         $approval_date = $_POST['approval_date'];
     else
         $approval_date = date("Y-m-d H:i:s");
+    $nodin_persetujuan = trim($_POST['nodin_persetujuan']);
     
     $result = array("success"=>false, "error"=>"", "program_id"=>$id, "upload"=>false, "upload_info"=>array("id"=>0,"filename"=>"","filetype"=>""));
     if ($id==0)
     {
         $sql = "INSERT INTO programs 
-                (name, source, description, potensi_bisnis, type, budget,operational,benef_name,benef_address,benef_phone,benef_email,benef_orang,benef_unit,pic,uker, uker_wilayah,uker_cabang,creation_date,creation_by,last_update_by,approval_by)VALUES
-                ('$name',$source,'$description','$potensi_bisnis',$type,$budget,$operational,'$benef_name','$benef_address','$benef_phone','$benef_email',$benef_orang,$benef_unit,'$pic',$uker, $uker_wilayah,$uker_cabang,'$creation_date',".get_user_info("ID").",".get_user_info("ID").",".get_user_info("ID").")";
+                (name, source, description, potensi_bisnis, type, budget,operational,benef_name,benef_address,benef_phone,benef_email,benef_orang,benef_unit,pic,uker, uker_wilayah,uker_cabang,creation_date,creation_by,last_update_by,approval_by,nodin_persetujuan)VALUES
+                ('$name',$source,'$description','$potensi_bisnis',$type,$budget,$operational,'$benef_name','$benef_address','$benef_phone','$benef_email',$benef_orang,$benef_unit,'$pic',$uker, $uker_wilayah,$uker_cabang,'$creation_date',".get_user_info("ID").",".get_user_info("ID").",".get_user_info("ID").",'$nodin_persetujuan')";
     }else{
         //check if already approve (state=1) and budget change
         //modified saldo also
@@ -315,7 +316,7 @@ function savePrograms($mode)
                 type=$type,budget=$budget,operational=$operational,benef_name='$benef_name',benef_address='$benef_address',                
                 benef_phone='$benef_phone',benef_email='$benef_email',benef_orang=$benef_orang,benef_unit=$benef_unit,
                 pic='$pic',uker=$uker,uker_wilayah=$uker_wilayah,uker_cabang=$uker_cabang,
-                creation_date='$creation_date',approval_date='$approval_date',
+                creation_date='$creation_date',approval_date='$approval_date',nodin_persetujuan='$nodin_persetujuan',
                 last_update_by=".get_user_info("ID")."
                 WHERE id=$id";
     }

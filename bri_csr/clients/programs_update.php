@@ -33,7 +33,7 @@ if ($mode==ACT_EDIT){
         $id = $qs[2];
         $sql = "SELECT id, type, source, name, description, potensi_bisnis, pic, uker_cabang, uker_wilayah,
                 budget, operational, benef_name, benef_address, benef_phone, benef_email,
-                benef_orang, benef_unit, state, creation_date, approval_date
+                benef_orang, benef_unit, state, creation_date, approval_date, nodin_persetujuan
                 FROM programs
                 WHERE id=$id";
         $data_result = $db_obj->execSQL($sql);
@@ -485,7 +485,12 @@ if ($mode==ACT_EDIT){
                                 <td class="title" width="250">Tanggal Persetujuan <em>(YYYY-mm-dd)</em></td>         
                                 <?php $approval_date = (isset($data_result)&&$state?$data_result[0]['approval_date']:date("Y-m-d H:i:s"));?>
                                 <td><input type="text" id="approval_date" name="approval_date" value="<?php echo $approval_date;?>" <?php echo (!userHasAccess($access, "PROGRAM_APPROVE")?'disabled':''); ?> /></td>
-                            </tr>      
+                            </tr>  
+                            <tr>
+                                <td class="title" width="250">Nodin Persetujuan</td>         
+                                <?php $nodin_persetujuan = (isset($data_result)?$data_result[0]['nodin_persetujuan']:'');?>
+                                <td><input type="text" id="nodin_persetujuan" name="nodin_persetujuan" value="<?php echo $nodin_persetujuan;?>" /></td>
+                            </tr>
                             <tr>
                                 <td class="title">Deskripsi Program</td>
                                 <?php $description = (isset($data_result)?$data_result[0]['description']:'');?>
