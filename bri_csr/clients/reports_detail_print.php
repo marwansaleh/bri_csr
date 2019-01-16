@@ -12,7 +12,7 @@ array_shift($qs);
 
 //check security uri, must do in every page
 //to avoid http injection
-$max_parameter_alllowed = 5;
+$max_parameter_alllowed = 6;//5;
 security_uri_check($max_parameter_alllowed, $qs);
 
 $db_obj = new DatabaseConnection();
@@ -170,6 +170,10 @@ else
                     total_per_page[z] = 0;
                     total_per_kanwil[z] = 0;
                 }   
+                
+                var nomor_urut_kanwil = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+                var nomor_urut_program = 1;
+                
                 for(var i in data['kanwil']['uker']){
                     var cabang_id=0; kanwil_id = data['kanwil']['uker'][i]['id'];                                     
                     
@@ -180,7 +184,7 @@ else
                     } 
                     
                     //show kanwil name
-                    printKanwilName(parseInt(i)+1, header_total_count, data['kanwil']['uker'][i]['uker']);
+                    printKanwilName(nomor_urut_kanwil[i], header_total_count, data['kanwil']['uker'][i]['uker']);
                     rows++;                    
                     
                     if (rows%records_per_page==0){                        
@@ -219,7 +223,8 @@ else
                                 cabang_id = data['kanwil']['items'][data['kanwil']['uker'][i]['id']][j]['uker_id'];
                             }
                             s="<tr>";
-                            s+="<td>&nbsp;</td><td width='80'>&nbsp;</td>";
+                            s+="<td>&nbsp;</td>";
+                            s+="<td width='80' align='center'>"+(nomor_urut_program++)+"</td>";
                             s+="<td width='70'>"+data['kanwil']['items'][data['kanwil']['uker'][i]['id']][j]['uker']+" ("+data['kanwil']['items'][data['kanwil']['uker'][i]['id']][j]['jenis_uker']+")</td>";
                             s+="<td width='50' align='center' class='updatable' lang='programs,approval_date,"+program_id+",0'>"+data['kanwil']['items'][data['kanwil']['uker'][i]['id']][j]['approval_date']+"</td>";
                             s+="<td width='170' class='updatable' lang='programs,description,"+program_id+",0'>"+data['kanwil']['items'][data['kanwil']['uker'][i]['id']][j]['description']+"</td>";                            

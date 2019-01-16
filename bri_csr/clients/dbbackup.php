@@ -12,7 +12,7 @@ array_shift($qs);
 
 //check security uri, must do in every page
 //to avoid http injection
-$max_parameter_alllowed = 1;
+$max_parameter_alllowed = 3;//1;
 security_uri_check($max_parameter_alllowed, $qs);
 
 $db_obj = new DatabaseConnection();
@@ -67,6 +67,37 @@ $access = loadUserAccess($db_obj);
             else if (confirm('Hapus file backup terpilih ?')==true)			
             {
                 deleteRecords(data_id);
+            }
+	});
+        
+        $('li#btn_download').click ( function ()
+	{
+            //check if any record in the table, if not, send alert and do not proceed
+            if($('tr.row-msg').length==0)
+            {
+                alert('Tidak ada record data pada tabel');
+                return;
+            }
+            var data_id = [];
+            $("tr.row-msg :checked").each ( function ()
+            {
+                data_id.push($(this).val());
+            });
+            if(data_id.length<1)
+                alert("Pilih / check file backup yang akan di-download");
+            else			
+            {
+                $('div#my-loader').show();
+                $.post("ajax",{input_function:'download_backup',ids:data_id.toString()},function(result){
+                    $('div#my-loader').hide();
+                    var data = jQuery.parseJSON(result);
+                    if (data.filename) {
+                        var wnd = window.open("get_dbbackup_file?filename="+data.filename);
+                        wnd.focus();
+                    } else {
+                        alert(data.message);
+                    }
+                })
             }
 	});
 		
@@ -161,6 +192,7 @@ $access = loadUserAccess($db_obj);
                     <li class="execute" id="btn_create">Buat Backup</li>
                     <li class="execute" id="btn_delete">Hapus Backup</li>
                     <li class="execute" id="btn_restore">Restore Database</li>
+                    <li class="execute" id="btn_download">Download Backup</li>
                     <li class="search">&laquo;</li>
                 </ul>
             </div>

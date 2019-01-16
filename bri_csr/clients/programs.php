@@ -12,7 +12,7 @@ array_shift($qs);
 
 //check security uri, must do in every page
 //to avoid http injection
-$max_parameter_alllowed = 4;
+$max_parameter_alllowed = 4;//2;
 security_uri_check($max_parameter_alllowed, $qs);
 
 $db_obj = new DatabaseConnection();
@@ -54,7 +54,7 @@ if (isset($qs[1]))
                 alert("Pilih / checked satu record yang akan diedit");
             else
                 window.location = "programs_update/<?php echo ACT_EDIT;?>/"+id[0];
-        })
+        });
         <?php }if (userHasAccess($access, "PROGRAM_DELETE")){?>
         $('li#btn_delete').click(function(){
             if($('tr.row-msg').length==0){
@@ -71,12 +71,33 @@ if (isset($qs[1]))
             else if (confirm("Hapus program terpilih ? \nSemua kegiatan, dokumen dan informasi lain akan ikut dihapus")){
                 deleteRecords(id);
             }
-        })
+        });
         <?php }?>
+        $('li#btn_export').click(function(){
+            $('div#my-loader').show();
+            var p_type = $('select#type').val();
+            var p_search = $('input#keyword').val();
+            var p_state = $('select#state').val();
+            
+            $.post("ajax",{input_function:'export_filtered_programs',type:p_state,search_str:p_search,state:p_state}, function(result){
+                $('div#my-loader').hide();
+                var data = jQuery.parseJSON(result);
+                
+                if (data.status) {
+                    var exp_wdw = window.open("get_excel_alt?filename="+data.filename,"ExportedWindow");
+                    exp_wdw.focus();
+                }else {
+                    alert(data.message);
+                }
+            });
+        });
         $('select#type').change(function(){
             var program_type = $(this).val();
             var keyword = $('input#keyword').val();
             loadPrograms(0, program_type, keyword);
+        });
+        $('select#state').change(function(){
+            loadPrograms(0, $('select#type').val(), $('input#keyword').val());
         })
         $('div#btn_search_content').click ( function ()
 	{
@@ -93,14 +114,18 @@ if (isset($qs[1]))
     })
     function loadPrograms(page,program_type,keyword)
     {        
+        //empty table
+        $("table.data-list tr.row-msg").each(function(){
+            $(this).remove();
+        });
+        
+        var state = $('select#state').val();
+        
         $('div#my-loader').show();
-        $.post("ajax",{input_function:'loadPrograms',param:page,type:program_type,search_str:keyword},function(result){
+        $.post("ajax",{input_function:'loadPrograms',param:page,type:program_type,search_str:keyword,state:state},function(result){
             $('div#my-loader').hide();
             data = jQuery.parseJSON(result);
-            //empty table
-            $("table.data-list tr.row-msg").each(function(){
-                $(this).remove();
-            })
+            
             if (data['found']>0){
                 var start = parseInt(data['start']);
                 for(var i in data['items']){
@@ -128,9 +153,9 @@ if (isset($qs[1]))
                     s+="<td align='right'>"+budget.formatMoney(2,',','.')+"</td>";
                     var operational = data['items'][i]['operational']*1;
                     s+="<td align='right'>"+operational.formatMoney(2,',','.')+"</td>";
-                    s+="<td align='right'>"+data['items'][i]['real_used']+"</td>";                    
+                    s+="<td align='right'>"+data['items'][i]['real_used']+"</td>";
+                    s+="<td align='center' width='70'>"+data['items'][i]['creation_date']+"</td>";
                     s+="<td><a href='personals/"+data['items'][i]['creation_by_id']+"'>"+data['items'][i]['creation_by']+"</a></td>";
-                    s+="<td align='center' width='70'>"+data['items'][i]['approval_date']+"</td>";
                     if (data['items'][i]['state']==0)
                         s+="<td align='center'><div class='icon-oknot'></div></td>";
                     else
@@ -324,12 +349,12 @@ if (isset($qs[1]))
     
     <div id="panel-content">
         <div class="content">
-            <h1>Program BL BRI - Berdasarkan Kategori</h1>
+            <h1>Program CSR BRI - Berdasarkan Kategori</h1>
             <div id="panel-buttons">
                 <ul>
                     <li>&raquo;</li>
                     <li class="execute" id="btn_home">Home</li>
-                    <li>Bidang
+                    <li class="dropdown">
                         <select id="type" name="type">                            
                             <?php
                             $types = get_program_types($db_obj);
@@ -342,6 +367,13 @@ if (isset($qs[1]))
                             <option value="-1">SEMUA BIDANG</option>
                         </select>
                     </li>
+                    <li class="dropdown">
+                        <select id="state" name="state">  
+                            <option value="-1">Status</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </li>
                     <?php if (userHasAccess($access, "PROGRAM_CREATE")){?>
                     <li class="execute" id="btn_create">Tambah Program</li>
                     <?php }if (userHasAccess($access, "PROGRAM_EDIT")){?>
@@ -349,7 +381,6 @@ if (isset($qs[1]))
                     <?php }if (userHasAccess($access, "PROGRAM_DELETE")){?>
                     <li class="execute" id="btn_delete">Hapus Program</li>
                     <?php }?>
-                    <li class="execute" id="btn_export">Export XLS</li>
                     <li class="search">&laquo;</li>
                     <li class="search">
                         <input type="text" id="keyword" name="keyword" 
@@ -357,6 +388,7 @@ if (isset($qs[1]))
                             <div id="btn_search_content" class="buttons" 
                                  lang="<?php echo cur_page_name(false);?>">Search</div>
                     </li>  
+                    <li class="execute" id="btn_export">Export</li>
                 </ul>
             </div>
         </div>   
@@ -372,8 +404,8 @@ if (isset($qs[1]))
                     <th rowspan="2">Anggaran</th>
                     <th rowspan="2">Operasional</th>
                     <th rowspan="2">Realisasi</th>
+                    <th rowspan="2">Dibuat</th>
                     <th rowspan="2">Oleh</th>
-                    <th rowspan="2">Approved</th>
                     <th rowspan="2">Status</th>                    
                     <th rowspan="2">(%)</th>
                     <th colspan="3">Penerima</th>

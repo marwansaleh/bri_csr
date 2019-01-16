@@ -69,6 +69,8 @@ switch($function)
     case 'updateSingleValue': updateSingleValue(); break;
     case 'loadAreas': loadAreas($param); break;
     case 'export_to_excel': export_to_excel($param); break;
+    case 'export_filtered_programs': export_filtered_programs(); break;
+    case 'download_backup': download_backup(); break;
     //RKAP
     case 'saveRKAP': saveRKAP($param); break;
     case 'loadRKAP': loadRKAP($param); break;
@@ -110,6 +112,8 @@ function loadPrograms($page)
         $kanwil_id_like = get_kanwil_id_by_searching($search_string, $db_obj);
     }
     $type= $_POST['type'];
+    $state = $_POST['state'];
+    
     $num_of_recs = 7;
     //count all pages
     $sql = "SELECT COUNT(*) FROM programs p, uker u, kabupaten k, propinsi pr WHERE (p.uker=u.id)AND(k.id=u.kabupaten)AND(u.propinsi=pr.id)";
@@ -121,7 +125,8 @@ function loadPrograms($page)
                 OR(k.ibukota LIKE '%$search_string%')
                 OR(pr.propinsi LIKE '%$search_string%')
                 OR(pr.ibukota LIKE '%$search_string%')
-                OR(p.benef_name LIKE '%$search_string%')";
+                OR(p.benef_name LIKE '%$search_string%')
+                OR(p.nodin_putusan LIKE '%$search_string%')";
         
         if ($kanwil_id_like)
             $sql.= "OR(p.uker_wilayah IN (". implode(",",$kanwil_id_like)."))";
@@ -130,7 +135,9 @@ function loadPrograms($page)
     }
     if ($type>0)
         $sql.=" AND(p.type=$type)";
-    
+    if ($state>=0) {
+        $sql.=" AND(p.state=$state)";
+    }
     $found = $db_obj->singleValueFromQuery($sql);
     $pages = ceil($found / $num_of_recs);
     $start = $num_of_recs * $page;
@@ -153,14 +160,20 @@ function loadPrograms($page)
                     OR(k.ibukota LIKE '%$search_string%')
                     OR(pr.propinsi LIKE '%$search_string%')
                     OR(pr.ibukota LIKE '%$search_string%')
-                    OR(p.benef_name LIKE '%$search_string%')";
+                    OR(p.benef_name LIKE '%$search_string%')
+                    OR(p.nodin_putusan LIKE '%$search_string%')";
             if ($kanwil_id_like)
                 $sql.= "OR(p.uker_wilayah IN (". implode(",",$kanwil_id_like)."))";
         
             $sql.=")";
         }
         if ($type>0)
-            $sql.= " AND(type=$type)";
+            $sql.= " AND(p.type=$type)";
+        
+        if ($state>=0) {
+            $sql.=" AND(p.state=$state)";
+        }
+        
         $sql.= " ORDER BY p.creation_date DESC, p.approval_date DESC
                 LIMIT $start, $num_of_recs";
         $result = $db_obj->execSQL($sql);
@@ -708,6 +721,7 @@ function loadReport($mode)
 }
 function loadReportByWilayah()
 {
+	$unitVal = 1; // before 1000 (dalam ribuan)
     $db_obj = new DatabaseConnection();
     $month_from = $_POST['month_from'];
     $year_from = $_POST['year_from'];
@@ -739,7 +753,7 @@ function loadReportByWilayah()
     $total = array();
     if ($kanwils)foreach($kanwils as $kanwil){
         $arr_data['bidang']['kanwil'][$i]['uker'] = $kanwil['uker']; 
-        $arr_data['bidang']['kanwil'][$i]['tot_budget'] = 0.00; 
+        $arr_data['bidang']['kanwil'][$i]['tot_budget'] = 0; 
         $arr_data['bidang']['kanwil'][$i]['tot_benef_orang'] = 0; 
         $arr_data['bidang']['kanwil'][$i]['tot_benef_unit'] = 0;         
         
@@ -784,7 +798,7 @@ function loadReportByWilayah()
             {
                 if ($result[0]['budget'])
                 {
-                    $budget = $result[0]['budget']/1000; 
+                    $budget = $result[0]['budget']/$unitVal; 
                     $tot_budget+=$budget;                    
                 }else{
                     $budget=0;
@@ -804,7 +818,7 @@ function loadReportByWilayah()
                     $benef_unit=0;
                 }
                 
-                $arr_bidang_detail = array("budget"=>number_format($budget,3,',','.'),"benef_orang"=>number_format($benef_orang,0,',','.'),"benef_unit"=>number_format($benef_unit,0,',','.'));
+                $arr_bidang_detail = array("budget"=>number_format($budget,0,',','.'),"benef_orang"=>number_format($benef_orang,0,',','.'),"benef_unit"=>number_format($benef_unit,0,',','.'));
                 
                 if (isset($subtotal[$bidang['id']]))
                 {
@@ -834,7 +848,7 @@ function loadReportByWilayah()
                 
             $arr_data['bidang']['kanwil'][$i]['bidang'][] = $arr_bidang_detail;            
         }
-        $arr_data['bidang']['kanwil'][$i]['tot_budget'] = number_format($tot_budget,3,",","."); 
+        $arr_data['bidang']['kanwil'][$i]['tot_budget'] = number_format($tot_budget,0,",","."); 
         $arr_data['bidang']['kanwil'][$i]['tot_benef_orang'] = number_format($tot_benef_orang,0,',','.'); 
         $arr_data['bidang']['kanwil'][$i]['tot_benef_unit'] = number_format($tot_benef_unit,0,',','.'); 
         
@@ -868,7 +882,7 @@ function loadReportByWilayah()
         {
             foreach($subtotal as $item)
             {
-                $item['budget'] = number_format($item['budget'],3,",",".");
+                $item['budget'] = number_format($item['budget'],0,",",".");
                 $item['benef_orang'] = number_format($item['benef_orang'],0,",",".");
                 $item['benef_unit'] = number_format($item['benef_unit'],0,",",".");
                 $arr_data['bidang']['subtotal'][$page_break][] = $item;
@@ -881,7 +895,7 @@ function loadReportByWilayah()
     }
     foreach($total as $item)
     {
-        $item['budget'] = number_format($item['budget'],3,",",".");
+        $item['budget'] = number_format($item['budget'],0,",",".");
         $item['benef_orang'] = number_format($item['benef_orang'],0,",",".");
         $item['benef_unit'] = number_format($item['benef_unit'],0,",",".");
         $arr_data['bidang']['total'][] = $item;
@@ -890,6 +904,7 @@ function loadReportByWilayah()
 }
 function loadReportByProvince()
 {
+	$unitVal = 1; // before 1000 (dalam ribuan)
     $db_obj = new DatabaseConnection();
     $month_from = $_POST['month_from'];
     $year_from = $_POST['year_from'];
@@ -921,7 +936,7 @@ function loadReportByProvince()
     $total = array();
     if ($provinces)foreach($provinces as $propinsi){
         $arr_data['bidang']['kanwil'][$i]['uker'] = $propinsi['uker'];       
-        $arr_data['bidang']['kanwil'][$i]['tot_budget'] = 0.00; 
+        $arr_data['bidang']['kanwil'][$i]['tot_budget'] = 0; 
         $arr_data['bidang']['kanwil'][$i]['tot_benef_orang'] = 0; 
         $arr_data['bidang']['kanwil'][$i]['tot_benef_unit'] = 0; 
         //load data for each bidang
@@ -966,10 +981,10 @@ function loadReportByProvince()
             {
                 if ($result[0]['budget'])
                 {
-                    $budget = $result[0]['budget']/1000; 
+                    $budget = $result[0]['budget']/$unitVal; 
                     $tot_budget+=$budget;                    
                 }else{
-                    $budget=0.00;
+                    $budget=0;
                 }
                 if ($result[0]['benef_orang'])
                 {
@@ -987,7 +1002,7 @@ function loadReportByProvince()
                 }
                 
                 $arr_bidang_detail = array(
-                    "budget"=>number_format($budget,3,',','.'),
+                    "budget"=>number_format($budget,0,',','.'),
                     "benef_orang"=>number_format($benef_orang,0,',','.'),
                     "benef_unit"=>number_format($benef_unit,0,',','.'));
                 if(isset($subtotal[$bidang['id']]))
@@ -1018,7 +1033,7 @@ function loadReportByProvince()
                 
             $arr_data['bidang']['kanwil'][$i]['bidang'][] = $arr_bidang_detail;
         }
-        $arr_data['bidang']['kanwil'][$i]['tot_budget'] = number_format($tot_budget,3,",","."); 
+        $arr_data['bidang']['kanwil'][$i]['tot_budget'] = number_format($tot_budget,0,",","."); 
         $arr_data['bidang']['kanwil'][$i]['tot_benef_orang'] = number_format($tot_benef_orang,0,',','.'); 
         $arr_data['bidang']['kanwil'][$i]['tot_benef_unit'] = number_format($tot_benef_unit,0,',','.'); 
         
@@ -1052,7 +1067,7 @@ function loadReportByProvince()
         {
             foreach($subtotal as $item)
             {
-                $item['budget'] = number_format($item['budget'],3,",",".");
+                $item['budget'] = number_format($item['budget'],0,",",".");
                 $item['benef_orang'] = number_format($item['benef_orang'],0,",",".");
                 $item['benef_unit'] = number_format($item['benef_unit'],0,",",".");
                 $arr_data['bidang']['subtotal'][$page_break][] = $item;
@@ -1065,7 +1080,7 @@ function loadReportByProvince()
     }
     foreach($total as $item)
     {
-        $item['budget'] = number_format($item['budget'],3,",",".");
+        $item['budget'] = number_format($item['budget'],0,",",".");
         $item['benef_orang'] = number_format($item['benef_orang'],0,",",".");
         $item['benef_unit'] = number_format($item['benef_unit'],0,",",".");
         $arr_data['bidang']['total'][] = $item;
@@ -2645,10 +2660,207 @@ function export_to_excel($filename)
     header("Content-Disposition: attachment; filename=$filename");
      * 
      */
-    if (file_put_contents("../temp/".$filename, $content))
+    if (file_put_contents(APP_BASE_PATH."temp/".$filename, $content))
         echo 1;
     else
         echo 0;
+}
+function export_filtered_programs()
+{
+    $db_obj = new DatabaseConnection();
+    if (isset($_POST['search_str'])&&$_POST['search_str']!='')
+    {
+        $search_string = $_POST['search_str'];
+        //get all kanwil for searching
+        $kanwil_id_like = get_kanwil_id_by_searching($search_string, $db_obj);
+    }
+    $type= $_POST['type'];
+    $state = $_POST['state'];
+    
+    $sql = "SELECT p.id, p.source,p.type,pt.type as type_name, p.name, p.description,p.potensi_bisnis, p.pic, p.uker_wilayah, p.uker_cabang,
+            p.state, u.uker, pr.propinsi, k.kabupaten, p.benef_name,p.benef_address,p.benef_phone, p.benef_email, p.benef_orang, p.benef_unit, 
+            DATE(p.creation_date) as creation_date, us.full_name as creation_by, 
+            DATE(p.approval_date) as approval_date, p.budget,p.nodin_putusan,
+            p.operational, p.creation_by as creation_by_id, u.propinsi as propinsi_id
+            FROM programs p, uker u, users us, propinsi pr, kabupaten k, program_types pt
+            WHERE (p.uker=u.id)AND(u.propinsi=pr.id)AND(u.kabupaten=k.id)AND(p.creation_by=us.id)AND(p.type=pt.id)";
+    if (isset($search_string))
+    {
+        $sql.=" AND ((MATCH(p.name,p.description) AGAINST ('$search_string'))OR(p.name LIKE '%$search_string%')
+                OR(u.uker LIKE '%$search_string%')OR(k.kabupaten LIKE '%$search_string%')
+                OR(k.ibukota LIKE '%$search_string%')
+                OR(pr.propinsi LIKE '%$search_string%')
+                OR(pr.ibukota LIKE '%$search_string%')
+                OR(p.benef_name LIKE '%$search_string%')
+                OR(p.nodin_putusan LIKE '%$search_string%')";
+        if ($kanwil_id_like)
+            $sql.= "OR(p.uker_wilayah IN (". implode(",",$kanwil_id_like)."))";
+
+        $sql.=")";
+    }
+    if ($type>0) {
+        $sql.= " AND(p.type=$type)";
+    }
+
+    if ($state>=0) {
+        $sql.=" AND(p.state=$state)";
+    }
+
+    $sql.= " ORDER BY p.creation_date DESC, p.approval_date DESC";
+    $result = $db_obj->fetch_obj($sql);
+
+    $arr = array();
+    if ($result)
+    {
+        foreach($result as $item)
+        {
+            $item->progress = number_format(program_progress($item->id, $db_obj),2,",",".");
+            $item->real_used = number_format(program_real_fund_used($item->id, $db_obj),2,",",".");
+            $arr[] = $item;
+        }
+    }
+    
+    require APP_BASE_PATH . 'funcs/PHPExcel.php';
+    /*
+     * Start writing excel file
+     */
+    $Excel = new PHPExcel();
+    $Excel->getProperties()->setCreator('PT. Bank Rakyat Indonesia, Tbk.')
+            ->setLastModifiedBy('Div. Corporate Secretary')
+            ->setTitle('Data Program Bantuan Sosial PT. Bank Rakyat Indonesia');
+    
+    //create header
+    $Excel->setActiveSheetIndex(0);
+    $Excel->getActiveSheet()->setShowGridlines(TRUE);
+
+    $row = 1;
+    $col = 'A';
+    
+    // Buat Nama Kolom
+    $Excel->getActiveSheet()
+            ->setCellValue($col++.$row, 'NO.')
+            ->setCellValue($col++.$row, 'PROGRAM_ID')
+            ->setCellValue($col++.$row, 'NAMA_PROGRAM')
+            ->setCellValue($col++.$row, 'KELOMPOK_PROGRAM')
+            ->setCellValue($col++.$row, 'BIDANG_ID')
+            ->setCellValue($col++.$row, 'NAMA_BIDANG')
+            ->setCellValue($col++.$row, 'BESAR_ANGGARAN')
+            ->setCellValue($col++.$row, 'DANA_OPERASIONAL')
+            ->setCellValue($col++.$row, 'UNIT_KERJA')
+            ->setCellValue($col++.$row, 'KABUPATEN')
+            ->setCellValue($col++.$row, 'PROVINSI')
+            ->setCellValue($col++.$row, 'PENERIMA_MANFAAT')
+            ->setCellValue($col++.$row, 'ALAMAT_PENERIMA')
+            ->setCellValue($col++.$row, 'TELEPON_PENERIMA')
+            ->setCellValue($col++.$row, 'EMAIL_PENERIMA')
+            ->setCellValue($col++.$row, 'JLH_ORANG')
+            ->setCellValue($col++.$row, 'JLH_UNIT')
+            ->setCellValue($col++.$row, 'TGL_PEMBUATAN')
+            ->setCellValue($col++.$row, 'TGL_PERSETUJUAN')
+            ->setCellValue($col++.$row, 'DESKRIPSI')
+            ->setCellValue($col++.$row, 'POTENSI')
+            ->setCellValue($col++.$row, 'REALISASI')
+            ->setCellValue($col++.$row, 'PROGRESS')
+            ->setCellValue($col++.$row, 'STATUS')
+            ->setCellValue($col++.$row, 'NODIN_PUTUSAN')
+            ->setCellValue($col++.$row, 'PIC');
+    
+    // ISI DATA PROGRAM
+    if (count($arr)) {
+        foreach ($arr as $item) {
+            $col = 'A'; $row++;
+            
+            $Excel->getActiveSheet()
+                    ->setCellValue($col++.$row, $row-1)
+                    ->setCellValue($col++.$row, $item->id)
+                    ->setCellValue($col++.$row, $item->name)
+                    ->setCellValue($col++.$row, $item->source==0?'BRI Perduli':'BUMN Perduli')
+                    ->setCellValue($col++.$row, $item->type)
+                    ->setCellValue($col++.$row, $item->type_name)
+                    ->setCellValue($col++.$row, $item->budget)
+                    ->setCellValue($col++.$row, $item->operational)
+                    ->setCellValue($col++.$row, $item->uker)
+                    ->setCellValue($col++.$row, $item->kabupaten)
+                    ->setCellValue($col++.$row, $item->propinsi)
+                    ->setCellValue($col++.$row, $item->benef_name)
+                    ->setCellValue($col++.$row, $item->benef_address)
+                    ->setCellValue($col++.$row, $item->benef_phone)
+                    ->setCellValue($col++.$row, $item->benef_email)
+                    ->setCellValue($col++.$row, $item->benef_orang)
+                    ->setCellValue($col++.$row, $item->benef_unit)
+                    ->setCellValue($col++.$row, $item->creation_date)
+                    ->setCellValue($col++.$row, $item->approval_date)
+                    ->setCellValue($col++.$row, $item->description)
+                    ->setCellValue($col++.$row, $item->potensi_bisnis)
+                    ->setCellValue($col++.$row, $item->real_used)
+                    ->setCellValue($col++.$row, $item->progress)
+                    ->setCellValue($col++.$row, $item->state==0?'NO':'YES')
+                    ->setCellValue($col++.$row, $item->nodin_putusan)
+                    ->setCellValue($col++.$row, $item->pic);
+        }
+    }
+
+    $ExcelWriter = PHPExcel_IOFactory::createWriter($Excel, 'Excel2007');
+    $filename = 'program_exported_'.date('Y-m-d-His').'.xlsx';
+    if (is_writable(sys_get_temp_dir())){
+        $filename_full_path = sys_get_temp_dir() .'/'. $filename;
+    }else{
+        $filename_full_path = APP_BASE_PATH. 'temp/'.$filename;
+    }
+    
+    $return = new stdClass();
+    $return->status = FALSE;
+    try{
+        $ExcelWriter->save($filename_full_path);
+        $return->status = TRUE;
+        $return->filename = urlencode(base64_encode($filename_full_path));
+    } catch (Exception $ex) {
+        $return->message = $ex->getMessage();
+    }
+
+
+    echo json_encode($return);
+}
+function download_backup(){
+    //get files
+    $backup_files = explode(",", $_POST['ids']);
+    
+    $filename = 'backupdb_'.date('Y-m-d-his').'.zip';
+    if (is_writable(sys_get_temp_dir())){
+        $filename_full_path = sys_get_temp_dir() .'/'. $filename;
+    }else{
+        $filename_full_path = APP_BASE_PATH. 'temp/'.$filename;
+    }
+    
+    $return = new stdClass();
+    $return->status = FALSE;
+    try{
+        
+        $zip = new ZipArchive();
+
+        if ($zip->open($filename_full_path, ZipArchive::CREATE)===TRUE) {
+            if ($backup_files && count($backup_files)) {
+                foreach ($backup_files as $bf){
+                    $zip->addFile(APP_BASE_PATH .'db_backup/'.$bf.'.sql','/'.$bf.'.sql');
+                }
+            }
+            
+            $zip->close();
+
+            $return->status = TRUE;
+            $return->numfiles = $zip->numFiles;
+            $return->filename = urlencode(base64_encode($filename_full_path));
+        } else {
+            $return->message = "Failed create zip backup file";
+        }
+
+        
+    } catch (Exception $ex) {
+        $return->message = $ex->getMessage();
+    }
+
+
+    echo json_encode($return);
 }
 function saveRKAP($id)
 {

@@ -12,7 +12,7 @@ array_shift($qs);
 
 //check security uri, must do in every page
 //to avoid http injection
-$max_parameter_alllowed = 3;
+$max_parameter_alllowed = 5;//3;
 security_uri_check($max_parameter_alllowed, $qs);
 
 //Create database Object
@@ -87,6 +87,10 @@ if ($mode==ACT_EDIT){
         })
         $('select#kanwil').change(function(){
             var wilayah = $(this).val();
+			var type = $('option:selected', this).attr('type');
+			if (type == 'KP') wilayah = 0;
+			
+			alert(type);
             loadKancab(wilayah);
         })
         $('input[type="file"]').change ( function ()
@@ -95,15 +99,15 @@ if ($mode==ACT_EDIT){
             var allowable_ext = ["jpg","doc","pdf"];
             if (new_upload_file !=''){
                 arr_file = new_upload_file.split('.');
-		ext = arr_file[arr_file.length-1];
-		if(allowable_ext.indexOf(ext.toLowerCase())==-1)
-		{
+				ext = arr_file[arr_file.length-1];
+				if(allowable_ext.indexOf(ext.toLowerCase())==-1)
+				{
                     alert('Format '+ext.toLowerCase()+' tidak dapat diupload');
                     $(this).val('');
-		}
+				}
             }
-            else alert('Tidak ada file yang akan diupload');
-	});
+			else alert('Tidak ada file yang akan diupload');
+		});
         $('input#pic').keypress(function(event){
             var target_obj = $(this).parent().find('div.lookup_bg');
             if (target_obj.css('display')=='none')
@@ -391,13 +395,13 @@ if ($mode==ACT_EDIT){
                                         <?php 
                                         $kanwil_options = load_kanwil($db_obj);
                                         foreach($kanwil_options as $item){
-                                            echo "<option value='".$item['id']."'";
+                                            echo "<option value='".$item['id']."' type='" .$item['tipe']."'" ;
                                             if ($wilayah==0){
                                                 $wilayah = $item['id'];                                                
                                             }                                                
                                             if ($wilayah==$item['id'])
                                             {
-                                                echo " selected";
+                                                echo " selected='selected'";
                                                 $wilayah_label = $item['uker'];
                                             }
                                             echo ">".$item['uker']."</option>";
