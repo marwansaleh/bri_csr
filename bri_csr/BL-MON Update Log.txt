@@ -9,6 +9,7 @@ DAFTAR ITEM PENGEMBANGAN APLIKASI BL MONITORING
 7. Di laporan, merubah nomor urut kanwil menjadi Abjad ==> done
 8. Pembuatan script yang akan dieksekusi oleh scheduler backup ==> done
 9. Scheduler (CRON JOB) backup database per hari jumat pukul 23.59 waktu server ==> 59 23 * * 5 /var/www/blmon/cron_dbbackup.php 
+10. Penambahan field "nodin_persetujuan" form update program ==> done
 
 
 UPDATE FILES
