@@ -76,6 +76,24 @@ class DatabaseConnection
 			}
 		}
 	}
+        function fetch_obj($sql){
+            $result = mysql_query($sql, $this->connection);
+            if ($result)
+            {
+                    $this->numrecord = mysql_affected_rows($this->connection);
+                    $this->last_id = mysql_insert_id($this->connection);
+                    $res_array = array();
+                    while ($r = mysql_fetch_object($result)){
+                            $res_array [] = $r;
+                    }
+                    mysql_free_result($result);
+
+                    return $res_array;
+            } else {
+                    $this->error_message = mysql_error($this->connection);
+                    return false;
+            }
+        }
 	public function getNumRecord() { return $this->numrecord; }
         public function getLastId() { return $this->last_id;}
 	public function updateField($table,$field,$new_value,$condition="")
@@ -124,7 +142,7 @@ class DatabaseConnection
 	public function singleValueFromQuery($sql)
 	{
 		$result = $this->query($sql);
-		if ($result && mysql_num_rows($result))
+		if ($result)
 			return mysql_result($result,0);
 		else
 		{

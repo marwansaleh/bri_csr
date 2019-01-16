@@ -7,6 +7,8 @@ define("BASE_URL","/projects/htdocs/".FOLDER_PREFIX);
 define("ABSTRACT_BASE","http://".$_SERVER['SERVER_NAME'].BASE_URL);
 define("CUSTOM_URL", "customs/");
 define("PROFILE_URL",CUSTOM_URL."profile/photo/");
+
+define("APP_BASE_PATH", dirname(__FILE__) .'/../');
 /*
  * Security phrase for forcelogin
  */
