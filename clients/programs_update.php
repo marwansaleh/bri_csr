@@ -301,7 +301,7 @@ if ($mode==ACT_EDIT){
     
     <div id="panel-content">
         <div class="content">
-            <h1>Program BL BRI - Update</h1>
+            <h1>Program CSR BRI - Update</h1>
             <p class="error-message"><?php echo (isset($error_message)?$error_message:'');?></p>
         </div>   
         <div class="clr"></div>

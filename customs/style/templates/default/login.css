@@ -6,7 +6,7 @@
 	border-radius: 15px;
 	-webkit-border-radius: 15px;
 	-moz-border-radius: 15px;
-	width:717px; height:265px;
+	width:400px; height:265px;
 	margin-top:50px;
 	margin-left:auto;
 	margin-right:auto;
@@ -17,8 +17,8 @@
 				rgba(223,225,231,1) 100%);
 	*/
 	background-color:#FFF;
-	background-image:url(images/login-background.jpg);
-	background-position:top left;
+/*	background-image:url(images/login-background.jpg);
+	background-position:top left;*/
 	background-repeat:no-repeat;
 	
 	-moz-box-shadow: 0px 0px 5px 5px rgba(221, 224, 230, 0.7);
@@ -26,15 +26,28 @@
 	box-shadow: 0px 0px 5px 5px rgba(221, 224, 230, 0.7);
 }
 
-div.separator {
-	background-image:url(images/login-separator.jpg);
-	background-repeat:no-repeat;
-	margin-left:382px;
-	width:10px;
-	height:inherit;
-	float:left;
+div.login-key-container { 
+    width: 230px;
+    margin-top:50px;
+    float:none; margin: auto; 
+    
 }
-div.login-key-container { width: 325px; float:left; }
-div.login-error { width:250px; float:none; margin-left:auto; margin-right:auto; margin-top:5px; color:#F00; font-style:italic; }
-div.login-key { width:250px; float:left; margin-left:10px; margin-right:auto; margin-top:60px; }
+div.login-container {
+    width: 100%; float: left; display: block; padding: 15px;
+    -moz-box-shadow: 0px 0px 5px 5px rgba(221, 224, 230, 0.7);
+    -webkit-box-shadow: 0px 0px 5px 5px rgba(221, 224, 230, 0.7);
+    box-shadow: 0px 0px 5px 5px rgba(221, 224, 230, 0.7);
+}
+div.login-header {
+    float: left;
+    width: 100%;
+    display: block;
+    padding-bottom: 10px;
+    text-align: center;
+}
+div.login-header H4 {margin: 0; border-bottom: solid 1px #ccc; padding-bottom: 10px;}
+
+div.login-key { width:100%; float:left; margin-top:20px; display: block; }
 div.login-key tr { height: 30px; }
+
+div.login-error { width:100%; float:left; display: block; color:#F00; font-style:italic; }

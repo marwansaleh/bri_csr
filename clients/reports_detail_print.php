@@ -527,7 +527,7 @@ else
 </head>
 
 <body>
-    <h1 class="report-title" title="Klik untuk ubah judul">LAPORAN DETAIL BINA LINGKUNGAN</h1>
+    <h1 class="report-title" title="Klik untuk ubah judul">LAPORAN DETAIL CSR BRI</h1>
     <p class="no-print">
         <button id="btn_print" onclick="window.print();">Print</button>
         <button id="btn_close" onclick="window.close();">Close</button>

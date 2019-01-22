@@ -227,7 +227,7 @@ else
 </head>
 
 <body>
-    <h1 class="report-title" title="Klik untuk ubah judul">PENYALURAN DANA BINA LINGKUNGAN
+    <h1 class="report-title" title="Klik untuk ubah judul">PENYALURAN DANA CSR BRI
         <?php
         if ($months[0].",".$years[0]==$months[1].",".$years[1]){
             echo "<span id='time_desc'>".strtoupper(get_indonesian_month($months[0]))." ". $years[0]."</span>";

@@ -7,3 +7,13 @@ CREATE DATABASE bri_csrmon
 mysqldump -u root -p bri_blmon > bri_csrmon.sql
 use bri_csrmon
 source bri_csrmon.sql
+
+truncate news;
+truncate budget_real_used;
+truncate doc_references;
+truncate logs;
+truncate programs;
+truncate rkap;
+truncate saldo;
+truncate saldo_real;
+truncate tasks;

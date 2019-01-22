@@ -35,33 +35,36 @@ if (isLoggedin()){
     <div id="panel-header">
     	<div class="app-title"></div>
     	<div class="logo"></div>
-    </div><div class="clr"></div>
-    
- 	<div id="login-box">
-    	<div class="separator"></div>
-        <div class="login-key-container">        	
-        	<div class="login-key">
-                    <form action="<?php echo cur_page_name(false);?>" method="post">
-                	<table border="0" width="100%">
-                    	<tr>
-                        	<td>Username</td>
+    </div>
+    <div class="clr"></div>
+    <div style="float: left; width: 100%; display: block; height: 40px;"></div><div class="clr"></div>
+    <div class="login-key-container">     
+        <div class="login-container">
+            <div class="login-header">
+                <h4>CSR BRI - LOGIN REQUIRED</h4>
+            </div>
+            <div class="login-key">
+                <form action="<?php echo cur_page_name(false); ?>" method="post">
+                    <table border="0" width="100%">
+                        <tr>
+                            <td>Username</td>
                             <td align="right"><input type="text" id="i_username" name="i_username" /></td>
                         </tr>
                         <tr>
-                        	<td>Password</td>
+                            <td>Password</td>
                             <td align="right"><input type="password" id="i_password" name="i_password" /></td>
                         </tr>
                         <tr>
-                        	<td>&nbsp;</td>
+                            <td>&nbsp;</td>
                             <td align="right"><input type="submit" name="btnLogin" value="Login" /></td>
                         </tr>
                         <tr><td colspan="2">&nbsp;</td></tr>
-                        <!--<tr><td colspan="2" align="right">Lupa password ?</td></tr>-->
                     </table>
                 </form>                
             </div>
-            <div class="login-error"><?php echo (isset($login_error_msg)?$login_error_msg:'');?></div>
+            <div class="login-error"><?php echo (isset($login_error_msg) ? $login_error_msg : ''); ?></div>
         </div>
+    </div>
     </div><div class="clr"></div>
     <div class="copyright">
         <span style='font-style:italic;'>Best view with Google Chrome and Mozilla Firefox 4+</span><br />

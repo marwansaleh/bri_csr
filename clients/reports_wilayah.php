@@ -153,7 +153,7 @@ $access = loadUserAccess($db_obj);
     
     <div id="panel-content">
         <div class="content">
-            <h1>Laporan Bina Lingkungan BRI Per Wilayah</h1>
+            <h1>Laporan CSR BRI Per Wilayah</h1>
             <div id="panel-buttons">
                 <ul>
                     <li>&raquo;</li>

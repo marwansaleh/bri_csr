@@ -360,7 +360,7 @@ $access = loadUserAccess($db_obj);
     
     <div id="panel-content">
         <div class="content">
-            <h1 class="report-title">Laporan Detail Bina Lingkungan BRI</h1>
+            <h1 class="report-title">Laporan Detail CSR BRI</h1>
             <div id="panel-buttons">
                 <ul>
                     <li>&raquo;</li>
