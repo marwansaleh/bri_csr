@@ -3,7 +3,7 @@ require_once("database.class.php");
 require_once("tools.php");
 require_once("constant.php");
 
-session_save_path("../temp");
+session_save_path(sys_get_temp_dir());
 session_start();
 
 load_sysvars();
@@ -16,7 +16,7 @@ function page_header($page_title="")
     $s.="<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />";
     $s.="<base href=\"". BASE_URL."\" />";
     $s.="<link rel=\"shortcut icon\" href=\"favicon.gif\" />";
-    $s.="<title>".$page_title."</title>";
+    $s.="<title>". ($page_title ? $page_title:"BRI - CORPORATE SOCIAL RESPONCIBILITY PROGRAMS")."</title>";
     $s.= get_user_style_files();
     $s.="<script language=\"javascript\" type=\"text/javascript\" src=\"customs/js/jquery-1.6.4.min.js\"></script>";
     $s.="<script language=\"javascript\" type=\"text/javascript\" src=\"customs/js/main.js\"></script>";
@@ -369,7 +369,7 @@ function load_kabupaten($propinsi=0, DatabaseConnection $db_obj=NULL)
 function load_kanwil(DatabaseConnection $db_obj=NULL)
 {
     if (!$db_obj) $db_obj = new DatabaseConnection ();
-    $sql = "SELECT id, wilayah, uker,parent 
+    $sql = "SELECT id, wilayah, uker,parent,tipe 
             FROM uker
             WHERE(parent=0)AND((tipe='KW')OR(tipe='KP'))
             ORDER BY uker ASC";
@@ -378,6 +378,15 @@ function load_kanwil(DatabaseConnection $db_obj=NULL)
         return $result;
     else
         return false;
+}
+function get_kanwil_arr(DatabaseConnection $db_obj=NULL){
+    $kanwils = load_kanwil($db_obj);
+
+    $new_arr = array();
+    foreach($kanwils as $kanwil){
+	$new_arr[$kanwil['id']] = $kanwil['uker'];
+    }
+    return $new_arr;
 }
 function load_kancab_by_parent($kanwil, DatabaseConnection $db_obj=NULL)
 {
@@ -678,7 +687,7 @@ function clean_garbage_session_files()
 {
     $time_spare = 60*60*24; //(24 hours)
     $deleted_files = 0;
-    $session_dir = "../temp/";
+    $session_dir = sys_get_temp_dir() . '/';
     if (!isset($_SESSION['BRI_CSR']['GARBAGE']))
     {
         if ($handle = opendir($session_dir)) {

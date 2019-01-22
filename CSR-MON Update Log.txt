@@ -1,0 +1,9 @@
+
+UPDATE DATABASE
+
+
+Duplicate database
+CREATE DATABASE bri_csrmon
+mysqldump -u root -p bri_blmon > bri_csrmon.sql
+use bri_csrmon
+source bri_csrmon.sql
