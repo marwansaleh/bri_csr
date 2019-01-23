@@ -17,3 +17,5 @@ truncate rkap;
 truncate saldo;
 truncate saldo_real;
 truncate tasks;
+
+UPDATE users set login_status=0, last_login=NULL,last_ip='',last_activity=NULL;
