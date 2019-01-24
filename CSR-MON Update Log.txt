@@ -19,3 +19,10 @@ truncate saldo_real;
 truncate tasks;
 
 UPDATE users set login_status=0, last_login=NULL,last_ip='',last_activity=NULL;
+
+4 JAN 2019
+
+Files:
+custom/js/jquery-ui-1.11.4/
+funcs/functions.php
+clients/programs_update.php
