@@ -24,6 +24,9 @@ UPDATE users set login_status=0, last_login=NULL,last_ip='',last_activity=NULL;
 
 Files:
 custom/js/jquery-ui-1.11.4/
+custom/js/jquery-mask/
+custom/js/jquery-1.12.4.min.js
+
 funcs/functions.php
 clients/programs_update.php
 clients/programs.php
