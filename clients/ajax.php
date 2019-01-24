@@ -2900,14 +2900,14 @@ function export_filtered_programs()
     $Excel = new PHPExcel();
     $Excel->getProperties()->setCreator('PT. Bank Rakyat Indonesia, Tbk.')
             ->setLastModifiedBy('Div. Corporate Secretary')
-            ->setTitle('Data Program Bina Lingkungan PT. Bank Rakyat Indonesia');
+            ->setTitle('Data Program CSR PT. Bank Rakyat Indonesia');
     
     //create header
     $Excel->setActiveSheetIndex(0);
     $Excel->getActiveSheet()->setShowGridlines(TRUE);
 
     //Set Title
-    $Excel->getActiveSheet()->setCellValue('A1', 'DAFTAR PROGRAM BINA LINGKUNGAN PT. BANK RAKYAT INDONESIA, TBK.');
+    $Excel->getActiveSheet()->setCellValue('A1', 'DAFTAR PROGRAM CSR PT. BANK RAKYAT INDONESIA, TBK.');
     
     $row = 3;
     $col = 'A';
@@ -3077,14 +3077,14 @@ function export_filtered_wilayah()
     $Excel = new PHPExcel();
     $Excel->getProperties()->setCreator('PT. Bank Rakyat Indonesia, Tbk.')
             ->setLastModifiedBy('Div. Corporate Secretary')
-            ->setTitle('Data Program Bina Lingkungan PT. Bank Rakyat Indonesia');
+            ->setTitle('Data Program CSR PT. Bank Rakyat Indonesia');
     
     //create header
     $Excel->setActiveSheetIndex(0);
     $Excel->getActiveSheet()->setShowGridlines(TRUE);
 
     //Set Title
-    $Excel->getActiveSheet()->setCellValue('A1', 'DAFTAR PROGRAM BINA LINGKUNGAN PT. BANK RAKYAT INDONESIA, TBK.');
+    $Excel->getActiveSheet()->setCellValue('A1', 'DAFTAR PROGRAM CSR PT. BANK RAKYAT INDONESIA, TBK.');
     
     $row = 3;
     $col = 'A';
